@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "chatcut"
+version = "0.1.0.dev0"
+description = "Agent-orchestrated talking-head video editing — one command, raw footage to finished video."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "ArtCog" }]
+keywords = ["video", "editing", "ffmpeg", "talking-head", "claude-code", "codex", "ai-agents"]
+dependencies = [
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# Local transcription backend (default, no API key). Installed by setup or `pip install chatcut[whisper]`.
+whisper = ["faster-whisper>=1.0"]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+chatcut = "chatcut.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/ArtCog/chatcut"
+Issues = "https://github.com/ArtCog/chatcut/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["chatcut"]
