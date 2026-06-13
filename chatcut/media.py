@@ -28,11 +28,25 @@ def require(binary: str, *, hint: str | None = None) -> str:
     return path
 
 
-def run(cmd: list[str], *, log: Callable[[str], None] | None = None, desc: str | None = None) -> subprocess.CompletedProcess:
-    """Run a command, raising ToolError with the stderr tail on failure."""
+def run(
+    cmd: list[str],
+    *,
+    log: Callable[[str], None] | None = None,
+    desc: str | None = None,
+    cwd: str | Path | None = None,
+) -> subprocess.CompletedProcess:
+    """Run a command, raising ToolError with the stderr tail on failure.
+
+    ``cwd`` lets callers run ffmpeg from a directory so a filter can reference a
+    file by bare name — the robust way to dodge Windows drive-colon parsing in
+    ``subtitles=`` / ``lut3d=``.
+    """
     if log and desc:
         log(desc)
-    proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
+    proc = subprocess.run(
+        cmd, capture_output=True, text=True, encoding="utf-8", errors="replace",
+        cwd=str(cwd) if cwd else None,
+    )
     if proc.returncode != 0:
         tail = "\n".join((proc.stderr or "").strip().splitlines()[-12:])
         raise ToolError(f"{cmd[0]} failed (exit {proc.returncode}):\n{tail}")
@@ -77,6 +91,16 @@ def encoder_quality_args(encoder: str) -> list[str]:
     if "videotoolbox" in encoder:
         return ["-q:v", "60"]
     return ["-preset", "medium", "-crf", "20"]  # libx264
+
+
+def filter_path(path: str | Path) -> str:
+    """Escape a path for use *inside* an ffmpeg filter (subtitles=, lut3d=).
+
+    On Windows the drive colon and backslashes break filter parsing; convert to
+    forward slashes and escape the colon: ``C:\\a\\b.srt`` -> ``C\\:/a/b.srt``.
+    """
+    s = str(path).replace("\\", "/")
+    return s.replace(":", "\\:")
 
 
 def ffprobe_json(path: str | Path) -> dict:
