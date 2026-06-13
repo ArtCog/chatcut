@@ -1,0 +1,43 @@
+# Talking-head pipeline: raw footage -> finished video, one pass.
+#
+# The CLI seeds two pseudo-steps:
+#   ${source.video}  = the input file
+#   ${opts.lut}      = the chosen colour LUT
+#
+# Captions are burned BEFORE cutting, so each kept frame keeps its correct
+# caption and removed fillers take their captions with them — one transcribe.
+name: talking_head
+
+steps:
+  - id: normalize
+    capability: normalize
+    params:
+      input: "${source.video}"
+
+  - id: transcribe
+    capability: transcribe
+    params:
+      input: "${normalize.video}"
+
+  - id: subtitles
+    capability: subtitles
+    params:
+      input: "${normalize.video}"
+      transcript: "${transcribe.transcript}"
+
+  - id: cut
+    capability: cut_meaning
+    params:
+      input: "${subtitles.video}"
+      transcript: "${transcribe.transcript}"
+
+  - id: color
+    capability: color
+    params:
+      input: "${cut.video}"
+      lut: "${opts.lut}"
+
+  - id: render
+    capability: render
+    params:
+      input: "${color.video}"

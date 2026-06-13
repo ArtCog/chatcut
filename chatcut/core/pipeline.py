@@ -81,12 +81,19 @@ class PipelineRunner:
         pipeline: Pipeline,
         *,
         options: dict[str, Any] | None = None,
+        initial: dict[str, dict[str, str]] | None = None,
         resume: bool = True,
     ) -> dict[str, ToolResult]:
-        """Execute the pipeline, returning each step's result by step id."""
+        """Execute the pipeline, returning each step's result by step id.
+
+        ``initial`` seeds pseudo-steps (e.g. ``source``, ``opts``) so the CLI can
+        inject the input path / chosen LUT via ``${source.video}`` references.
+        """
         options = options or {}
         checkpoint = Checkpoint.for_project(ctx.paths.project_root)
-        results: dict[str, ToolResult] = {}
+        results: dict[str, ToolResult] = {
+            sid: ToolResult(artifacts=dict(arts)) for sid, arts in (initial or {}).items()
+        }
 
         for step in pipeline.steps:
             if step.when and not options.get(step.when):
