@@ -1,0 +1,44 @@
+# --- secrets ---
+.env
+*/.env
+.env.local
+
+# --- python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# --- node ---
+node_modules/
+.hyperframes-cache/
+
+# --- cloned third-party engines (installed by setup, not vendored) ---
+/video-use/
+
+# --- models (downloaded by setup) ---
+models/
+*.onnx
+*.pt
+*.bin
+
+# --- project media (never commit user footage / renders) ---
+raw/
+projects/*/clips/
+projects/*/previews/
+projects/*/renders/
+projects/*/assets/speaker.mp4
+projects/*/transcripts/*.json
+*.mp4
+*.mov
+*.mkv
+*.wav
+!examples/**/*.mp4
+
+# --- os / editor ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
