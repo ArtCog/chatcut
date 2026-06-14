@@ -76,13 +76,40 @@ def _wrap(text: str, max_chars: int) -> str:
     return "\n".join(lines)
 
 
+def _chunk_words(words: list[dict], max_chars: int, max_dur: float = 2.8, max_lines: int = 2):
+    """Group word-timestamps into short caption cues (talking-head style).
+
+    Breaks on sentence punctuation, ~max_chars*max_lines length, or max_dur — so
+    captions are short phrases, not one giant block per whisper segment.
+    """
+    cues, cur = [], []
+    for w in words:
+        cur.append(w)
+        text = "".join(x.get("word", "") for x in cur).strip()
+        dur = float(cur[-1]["end"]) - float(cur[0]["start"])
+        if len(text) >= max_chars * max_lines or dur >= max_dur or text.endswith((".", "!", "?", "…")):
+            cues.append((float(cur[0]["start"]), float(cur[-1]["end"]), text))
+            cur = []
+    if cur:
+        text = "".join(x.get("word", "") for x in cur).strip()
+        cues.append((float(cur[0]["start"]), float(cur[-1]["end"]), text))
+    return cues
+
+
 def _to_srt(data: dict, max_chars: int) -> str:
+    cues: list[tuple[float, float, str]] = []
+    for seg in data.get("segments", []):
+        words = seg.get("words")
+        if words:
+            cues.extend(_chunk_words(words, max_chars))
+        elif seg.get("text", "").strip():
+            cues.append((float(seg["start"]), float(seg["end"]), seg["text"].strip()))
+
     out = []
-    for i, seg in enumerate(data.get("segments", []), start=1):
-        text = _wrap(seg.get("text", "").strip(), max_chars)
-        if not text:
-            continue
-        out.append(f"{i}\n{_fmt(seg['start'])} --> {_fmt(seg['end'])}\n{text}\n")
+    for i, (start, end, text) in enumerate(cues, start=1):
+        wrapped = _wrap(text, max_chars)
+        if wrapped:
+            out.append(f"{i}\n{_fmt(start)} --> {_fmt(end)}\n{wrapped}\n")
     return "\n".join(out)
 
 
