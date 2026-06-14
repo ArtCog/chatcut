@@ -6,7 +6,21 @@
 
 It does **not** reinvent the engines. It orchestrates the best open tools — [video-use](https://github.com/browser-use/video-use), [hyperframes](https://github.com/heygen-com/hyperframes), [auto-editor](https://github.com/WyattBlue/auto-editor), [faster-whisper](https://github.com/SYSTRAN/faster-whisper), ffmpeg — and adds the part that's actually hard: **opinionated, hard-won correctness rules** so a single command doesn't produce a broken video (no frozen frames, no A/V desync, no crushed audio).
 
-> 🚧 **Status: v0.1 in active development.** Not usable yet. Building in the open.
+> 🚧 **Status: v0.1, building in the open.** The core pipeline works end-to-end
+> (raw → finished video in one command); polishing setup and real-world testing.
+
+## Quick start
+
+```bash
+git clone https://github.com/ArtCog/chatcut && cd chatcut
+./setup.sh            # Windows: ./setup.ps1   (installs chatcut + free local toolchain)
+chatcut tools         # see capabilities and what's ready
+chatcut edit raw.mp4  # raw footage → projects/raw/renders/final.mp4
+```
+
+Then just talk to your agent: *"edit raw.mp4 — cut the filler, add captions,
+warm look."* It runs the pipeline, shows you a cut-plan, renders a preview, and
+finalises.
 
 ## Why chatcut
 

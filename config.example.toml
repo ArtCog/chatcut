@@ -1,0 +1,13 @@
+# chatcut config — copy to `config.toml` and edit. All keys are optional;
+# the values shown are the built-in defaults. Unknown keys are ignored.
+
+[transcribe]
+backend = "faster-whisper"   # "faster-whisper" (free, local) | "elevenlabs" (paid)
+model = "large-v3"           # tiny | base | small | medium | large-v3 (smaller = faster)
+# language = "ru"            # omit to autodetect
+
+[encode]
+encoder = "auto"             # auto | h264_nvenc | h264_qsv | h264_videotoolbox | libx264
+final_height = 1440          # final render height (px); width keeps aspect
+fps = 60
+loudness_lufs = -14.0        # YouTube-friendly loudness target (applied last)
