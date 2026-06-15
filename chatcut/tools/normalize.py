@@ -31,7 +31,7 @@ class NormalizeTool(Tool):
             [
                 "ffmpeg", "-y", "-fflags", "+genpts", "-i", src,
                 "-map", "0:v:0", "-map", "0:a:0",
-                "-c:v", "libx264", "-crf", "18",
+                "-c:v", "libx264", "-crf", "18", "-pix_fmt", "yuv420p",
                 "-r", str(target_fps), "-fps_mode", "cfr",
                 "-c:a", "pcm_s16le", "-ar", "48000",
                 str(out),

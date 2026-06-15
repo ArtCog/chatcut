@@ -126,6 +126,7 @@ def _cut_cmd(src, keep, out, encoder):
         "-filter_complex", fc,
         "-map", "[v]", "-map", "[a]",
         "-c:v", encoder, *media.encoder_quality_args(encoder),
+        "-pix_fmt", "yuv420p",
         "-c:a", "aac", "-b:a", "192k",
         str(out),
     ]

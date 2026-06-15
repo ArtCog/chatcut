@@ -43,8 +43,9 @@ class SubtitlesTool(Tool):
             media.run(
                 [
                     "ffmpeg", "-y", "-i", str(input),
-                    "-vf", f"subtitles={srt_path.name}",
+                    "-vf", f"subtitles={srt_path.name},format=yuv420p",
                     "-c:v", encoder, *media.encoder_quality_args(encoder),
+                    "-pix_fmt", "yuv420p",
                     "-c:a", "copy",
                     str(out),
                 ],

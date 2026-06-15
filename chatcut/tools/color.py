@@ -35,8 +35,11 @@ class ColorTool(Tool):
         media.run(
             [
                 "ffmpeg", "-y", "-i", str(input),
-                "-vf", f"lut3d={lut_path.name}",
+                # lut3d works in RGB and emits gbrp — convert back to yuv420p so
+                # downstream stays standard and playable.
+                "-vf", f"lut3d={lut_path.name},format=yuv420p",
                 "-c:v", encoder, *media.encoder_quality_args(encoder),
+                "-pix_fmt", "yuv420p",
                 "-c:a", "copy",
                 str(out),
             ],

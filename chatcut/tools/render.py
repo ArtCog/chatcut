@@ -29,14 +29,18 @@ class RenderTool(Tool):
         out_dir = ctx.paths.previews if preview else ctx.paths.renders
         out = out_dir / name
 
-        vf = f"scale=-2:{height}:flags=lanczos"
+        # format=yuv420p is mandatory for a deliverable: players/YouTube reject
+        # 4:4:4 / gbrp (which lut3d upstream can introduce). -ar 48000 resets the
+        # samplerate loudnorm bumps to a non-standard value.
+        vf = f"scale=-2:{height}:flags=lanczos,format=yuv420p"
         af = f"loudnorm=I={enc_cfg.loudness_lufs}:TP=-1.5:LRA=11"
         cmd = [
             "ffmpeg", "-y", "-i", input,
             "-vf", vf,
             "-c:v", encoder, *media.encoder_quality_args(encoder),
+            "-pix_fmt", "yuv420p",
             "-af", af,
-            "-c:a", "aac", "-b:a", "192k",
+            "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
             "-movflags", "+faststart",
             str(out),
         ]
